@@ -26,11 +26,10 @@ excludedSessionStrs                 = get_excludedSessionStrs();
 subjectStrs                         = {'Buzz', 'Theo'};
 arrayStrs                           = {'NSP0', 'NSP1'};
 unitsORchanStrs                     = {'channels', 'units'};
-taskVariables                       = {'nineLocations', 'lr'};
+taskVariables                       = {'nineLocations'};
 
 filespecs.cueDelayOnly              = 0;
 filespecs.trialOutcome              = 'correctOnly';
-filespecs.method                    = 'phase_cdr';                      % entire cue (3000 ms), entire delay (2000 ms), first 500 ms into response
 
 for unitsORchanI=1:numel(unitsORchanStrs)
     switch unitsORchanStrs{unitsORchanI}
