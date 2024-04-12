@@ -2,12 +2,6 @@ function [tuningProfile, mcTuningProfile, residualRaster, spikeRaster, firingRat
 % function extractSignals_KM extracts tuningProfile, mcTuningProfile and
 % residualRaster for KM task. 
 % 
-% INPUT
-%   'method'    
-%               'phase_cd'          average spike rate across the entire trial phase (cue and delay only)
-%               'phase_cdr'         average spike rate across the entire trial phase (cue, delay, and 500 ms into response)
-%               'around_response'   some time before and after response
-% 
 % USAGE
 % filespecs.subjectStr      = 'Buzz'; 
 % filespecs.sessionStr      = '20171201';
