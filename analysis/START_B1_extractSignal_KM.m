@@ -8,8 +8,8 @@ function START_B1_extractSignal_KM
 %   chanLinearInds  (nChannels x 1)
 %   raster          (100 x time x trials)
 %   
-% 
-% last modified: 2023.10.20
+% checked 
+% last modified: 2024.04.12 
 
 
 import spikes.*;
