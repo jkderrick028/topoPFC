@@ -81,15 +81,7 @@ for subjectI=1:numel(subjectStrs)
                         case 'residual'
                             signalProfile_thisSession       = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).quadrants.residualRaster;
                     end
-                    chanLinearInds_thisSession              = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).quadrants.chanLinearInds;
-                otherwise
-                    switch signalType
-                        case 'mcTuning'
-                            signalProfile_thisSession       = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).threeColumns.mcTuningProfile;
-                        case 'residual'
-                            signalProfile_thisSession       = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).threeColumns.residualRaster;
-                    end
-                    chanLinearInds_thisSession              = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).threeColumns.chanLinearInds;
+                    chanLinearInds_thisSession              = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).quadrants.chanLinearInds;                
             end         
             
             signalProfile_thisSession                       = reshape(signalProfile_thisSession, size(signalProfile_thisSession, 1), []);
