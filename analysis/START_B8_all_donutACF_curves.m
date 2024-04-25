@@ -95,9 +95,9 @@ hold on;
 yline(0, 'LineWidth', 1, 'Color', [120, 120, 120]/255, 'LineStyle', '--'); 
 plot(distances, I_real_combine', 'Color', [200, 200, 200]/255, 'LineWidth', 1);
 % plot(distances, task_mean_monkeyB_NSP1', 'Color', 'cyan', 'LineStyle', '-.', 'LineWidth', 1.2);
-plot(distances, task_mean_monkeyB_NSP1(1, :), 'Color', [0.9290 0.6940 0.1250], 'LineStyle', '-', 'LineWidth', 2);
-plot(distances, task_mean_monkeyB_NSP1(2, :), 'Color', [0.4660 0.6740 0.1880], 'LineStyle', '-', 'LineWidth', 2);
-plot(distances, task_mean_monkeyB_NSP1(3, :), 'Color', [0.4940 0.1840 0.5560], 'LineStyle', '-', 'LineWidth', 2);
+plot(distances, task_mean_monkeyB_NSP1(1, :), 'Color', [0.9290 0.6940 0.1250], 'LineStyle', '-', 'LineWidth', 2);   % ODR, yellow
+plot(distances, task_mean_monkeyB_NSP1(2, :), 'Color', [0.4660 0.6740 0.1880], 'LineStyle', '-', 'LineWidth', 2);   % VWM, green
+plot(distances, task_mean_monkeyB_NSP1(3, :), 'Color', [0.4940 0.1840 0.5560], 'LineStyle', '-', 'LineWidth', 2);   % CDM, purple
 xlim([0, 3.65]);
 ylim([-0.3, 1]);
 xlabel('distances (mm)');
