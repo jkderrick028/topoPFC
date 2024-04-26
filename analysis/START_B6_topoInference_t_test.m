@@ -3,7 +3,7 @@ function START_B6_topoInference_t_test
 % the replicability of correlation matrices (signal, task, residuals)
 % within and across tasks. 
 % 
-% last modified: 2024.04.16
+% last modified: 2024.04.26
 
 import topography.*; 
 import spikes.*;
@@ -134,51 +134,54 @@ for subjectI = 1:numel(subjectStrs)
         % within each task combination, test whether whole is significantly
         % higher than residuals
         for combI=1:n_task_combinations
-            inds_combI          = find(strcmp(task1s_this_subject, task_combinations{combI}{1}) & strcmp(task2s_this_subject, task_combinations{combI}{2})); 
+            inds_combI              = find(strcmp(task1s_this_subject, task_combinations{combI}{1}) & strcmp(task2s_this_subject, task_combinations{combI}{2})); 
            
-            rs_whole            = squeeze(simmat_corrs(1, inds_combI));
-            rs_residuals        = squeeze(simmat_corrs(3, inds_combI));
+            rs_whole                = squeeze(simmat_corrs(1, inds_combI));
+            rs_residuals            = squeeze(simmat_corrs(3, inds_combI));
 
-            [h, p_vals]         = ttest(rs_whole, rs_residuals, 'Tail', 'right'); 
+            [h, p_vals, ci, stats]  = ttest(rs_whole, rs_residuals, 'Tail', 'right'); 
             
             if p_vals < significance_level
                 subplot(nHors, nVers, combI);
                 scatter(1, -0.05, 'filled', 'MarkerFaceColor', [0.4660 0.6740 0.1880]); % green 
             end
-            output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).p_whole_gt_residuals   = p_vals;
+            output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).p_whole_gt_residuals       = p_vals;
+            output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).stats_whole_gt_residuals   = stats;
         end % combI 
 
         % within each task combination, test whether task is significantly
         % higher than residuals
         for combI=1:n_task_combinations
-            inds_combI          = find(strcmp(task1s_this_subject, task_combinations{combI}{1}) & strcmp(task2s_this_subject, task_combinations{combI}{2})); 
+            inds_combI              = find(strcmp(task1s_this_subject, task_combinations{combI}{1}) & strcmp(task2s_this_subject, task_combinations{combI}{2})); 
            
-            rs_task             = squeeze(simmat_corrs(2, inds_combI));
-            rs_residuals        = squeeze(simmat_corrs(3, inds_combI));
+            rs_task                 = squeeze(simmat_corrs(2, inds_combI));
+            rs_residuals            = squeeze(simmat_corrs(3, inds_combI));
 
-            [h, p_vals]         = ttest(rs_task, rs_residuals, 'Tail', 'right'); 
+            [h, p_vals, ci, stats]  = ttest(rs_task, rs_residuals, 'Tail', 'right'); 
             
             if p_vals < significance_level
                 subplot(nHors, nVers, combI);
                 scatter(2, -0.05, 'filled', 'MarkerFaceColor', [0.3010 0.7450 0.9330]); % light blue 
             end
-            output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).p_task_gt_residuals    = p_vals;
+            output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).p_task_gt_residuals        = p_vals;
+            output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).stats_task_gt_residuals    = stats;
         end % combI
 
         % within each task combination, test whether residuals is
         % significantly higher than task
         for combI=1:n_task_combinations
-            inds_combI          = find(strcmp(task1s_this_subject, task_combinations{combI}{1}) & strcmp(task2s_this_subject, task_combinations{combI}{2})); 
+            inds_combI              = find(strcmp(task1s_this_subject, task_combinations{combI}{1}) & strcmp(task2s_this_subject, task_combinations{combI}{2})); 
            
-            rs_task             = squeeze(simmat_corrs(2, inds_combI));
-            rs_residuals        = squeeze(simmat_corrs(3, inds_combI));
+            rs_task                 = squeeze(simmat_corrs(2, inds_combI));
+            rs_residuals            = squeeze(simmat_corrs(3, inds_combI));
 
-            [h, p_vals]         = ttest(rs_residuals, rs_task, 'Tail', 'right');  
+            [h, p_vals, ci, stats]  = ttest(rs_residuals, rs_task, 'Tail', 'right');  
             if p_vals < significance_level
                 subplot(nHors, nVers, combI);
                 scatter(3, -0.05, 'filled', 'MarkerFaceColor', [0.8500 0.3250 0.0980]); % orange
             end
-            output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).p_residuals_gt_task    = p_vals;
+            output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).p_residuals_gt_task        = p_vals;
+            output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).stats_residuals_gt_task    = stats;
         end % combI      
 
         % within each task combination, test whether replicability is
@@ -219,10 +222,10 @@ for subjectI = 1:numel(subjectStrs)
                 
                 % t test see if between task reliability is significantly
                 % lower than noise ceiling
-                rs                  = simmat_corrs(:, inds_combI);
-                [h, p_vals]         = ttest(rs', repmat(noise_ceiling, 1, n_task_pairs_combI)', 'Tail', 'left'); 
+                rs                      = simmat_corrs(:, inds_combI);
+                [h, p_vals, ci, stats]  = ttest(rs', repmat(noise_ceiling, 1, n_task_pairs_combI)', 'Tail', 'left'); 
                                 
-                p_significant       = find(p_vals < significance_level);
+                p_significant           = find(p_vals < significance_level);
                 
                 subplot(nHors, nVers, combI);
                 errorbar(1:numel(signal_types), noise_ceiling, 0, '.', 'LineStyle', 'none', 'Color', [0 0.4470 0.7410]); % blue
@@ -230,8 +233,9 @@ for subjectI = 1:numel(subjectStrs)
                 if ~isempty(p_significant)
                     scatter(p_significant, -0.1*ones(1, numel(p_significant)), 'filled', 'MarkerFaceColor', [0.6350 0.0780 0.1840]); % red 
                 end 
-                output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).noise_ceiling      = noise_ceiling;
-                output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).p_lt_noise_ceiling = p_vals;
+                output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).noise_ceiling          = noise_ceiling;
+                output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).p_lt_noise_ceiling     = p_vals;
+                output_inference.(subjectStrs{subjectI}).(arrayStrs{arrayI}).actual_r(combI).stats_lt_noise_ceiling = stats;
             end 
         end % combI 
         
