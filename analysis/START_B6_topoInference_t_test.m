@@ -139,7 +139,8 @@ for subjectI = 1:numel(subjectStrs)
             rs_whole                = squeeze(simmat_corrs(1, inds_combI));
             rs_residuals            = squeeze(simmat_corrs(3, inds_combI));
 
-            [h, p_vals, ci, stats]  = ttest(rs_whole, rs_residuals, 'Tail', 'right'); 
+            % [h, p_vals, ci, stats]  = ttest(rs_whole, rs_residuals, 'Tail', 'right');
+            [h, p_vals, ci, stats]  = ttest(rs_whole, rs_residuals);
             
             if p_vals < significance_level
                 subplot(nHors, nVers, combI);
@@ -157,7 +158,8 @@ for subjectI = 1:numel(subjectStrs)
             rs_task                 = squeeze(simmat_corrs(2, inds_combI));
             rs_residuals            = squeeze(simmat_corrs(3, inds_combI));
 
-            [h, p_vals, ci, stats]  = ttest(rs_task, rs_residuals, 'Tail', 'right'); 
+            % [h, p_vals, ci, stats]  = ttest(rs_task, rs_residuals, 'Tail', 'right'); 
+            [h, p_vals, ci, stats]  = ttest(rs_task, rs_residuals); 
             
             if p_vals < significance_level
                 subplot(nHors, nVers, combI);
@@ -175,7 +177,8 @@ for subjectI = 1:numel(subjectStrs)
             rs_task                 = squeeze(simmat_corrs(2, inds_combI));
             rs_residuals            = squeeze(simmat_corrs(3, inds_combI));
 
-            [h, p_vals, ci, stats]  = ttest(rs_residuals, rs_task, 'Tail', 'right');  
+            % [h, p_vals, ci, stats]  = ttest(rs_residuals, rs_task, 'Tail', 'right'); 
+            [h, p_vals, ci, stats]  = ttest(rs_residuals, rs_task); 
             if p_vals < significance_level
                 subplot(nHors, nVers, combI);
                 scatter(3, -0.05, 'filled', 'MarkerFaceColor', [0.8500 0.3250 0.0980]); % orange
