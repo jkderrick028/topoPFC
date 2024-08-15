@@ -1,11 +1,15 @@
-function chanColours = mds2arraySpace(chanColours_rgb, chanLinearInds)
+function chanColours = mds2arraySpace(chanColours_rgb, chanLinearInds, nRows, nCols)
 % this function arranges 3d colors according to channel linear index into a
 % 10 x 10 x 3 matrix
 % 
 % last modified: 2022.07.10
 
-nRows                           = 10;
-nCols                           = 10;
+if ~exist('nRows', 'var')
+    nRows                       = 10;
+end
+if ~exist('nCols', 'var')
+    nCols                       = 10;
+end 
 nColourChannels                 = 3;            % r, g, b
 chanColours                     = ones(nRows, nCols, nColourChannels);
 sz                              = [nRows, nCols];

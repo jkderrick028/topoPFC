@@ -133,4 +133,4 @@ end % subjectI
 save(MAT_output, 'output', '-v7.3');
 close all;
 
-end % START_B2_spikesMDS
+end % START_R1_simulate_data

@@ -1,11 +1,11 @@
-function [colours_rgb, unexplainedVariance, coords_2D] = mds_channels(signal, chanLinearInds)
+function [colours_rgb, unexplainedVariance, coords_2D] = mds_channels(signal, chanLinearInds, nRows, nCols)
 % function mds_channels computes channel x channel correlation distance (1
 % - correlation) matrix, conduct MDS, color code each channel based on
 % their distance in the mds splace, project channels back to the 10 x 10
 % array space
 % 
 % INPUT
-%   signal being either tuningProfile (100 x nConditions) or corrmat (100 x 100)
+%   signal being tuningProfile
 %   chanLinearInds
 % 
 % last modified: 2024.04.12
@@ -50,7 +50,7 @@ MDSarrangements(coords_2D, colours_rgb, figInfo);
 
 % project back to array space
 subplot(figInfo.nVerPan, figInfo.nHorPan, 3);
-arraySpaceColour                                = mds2arraySpace(colours_rgb, chanLinearInds);
+arraySpaceColour                                = mds2arraySpace(colours_rgb, chanLinearInds, nRows, nCols);
 imagesc(arraySpaceColour);
 axis square;
 axis off; 

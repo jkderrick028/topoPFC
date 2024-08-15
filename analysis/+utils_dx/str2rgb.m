@@ -16,6 +16,8 @@ switch color
         rgb = [0.3010   0.7450  0.9330]; 
     case 'dark_blue'
         rgb = [0        0.4470  0.7410];
+    case 'toronto_blue'
+        rgb = [19, 74, 142]/255; 
 end
 
 end % function str2rgb
