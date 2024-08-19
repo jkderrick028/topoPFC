@@ -45,11 +45,15 @@ for taskI = 1:numel(taskStrs)
                 case 'ODR'
                     MAT_data        = fullfile(dataPath, sprintf('%s_%s_%s_NeuralData.mat', subjectStrs{subjectI}(1), sessionStrs{sessI}, taskStrs{taskI}));
                     data            = load(MAT_data).dataODRStruct;
-                    trialOutcome    = data.TrialOutcome;    
+                    trialOutcome    = data.TrialOutcome;   
+                    conditionInfo   = compose('%d', data.QuadCond);
+                    output.(taskStrs{taskI}).(subjectStrs{subjectI})(sessI).conditionInfo   = conditionInfo;
                 case 'KM'
                     MAT_data        = fullfile(dataPath, sprintf('includeNoiseChannels_%s_%s_%s.mat', taskStrs{taskI}, subjectStrs{subjectI}, sessionStrs{sessI}));
                     data            = load(MAT_data).data;
                     trialOutcome    = data.WM.trialOutcome;
+                    conditionInfo   = compose('%d', data.WM.cond'); 
+                    output.(taskStrs{taskI}).(subjectStrs{subjectI})(sessI).conditionInfo   = conditionInfo;
                 case 'AL'
                     MAT_data        = fullfile(dataPath, sprintf('%s%s.mat', subjectStrs{subjectI}(1), sessionStrs{sessI}));
                     data            = load(MAT_data).data;

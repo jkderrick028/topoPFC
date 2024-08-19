@@ -36,6 +36,9 @@ MAT_output                          = fullfile(resultsPath, sprintf('%s_%s.mat',
 
 subjectStrs                         = {'Buzz', 'Theo'};
 arrayStrs                           = {'NSP1', 'NSP0'}; 
+excludedSessionStrs                 = get_excludedSessionStrs(); 
+excludedSessionStrs{end+1}          = '20170614';
+excludedSessionStrs{end+1}          = '20170616';
 
 MAT_simmats                         = fullfile(projectPath, 'results', ANALYSIS, 'START_B6_topoInference_generation', 'output_simmats.mat'); 
 output_simmats                      = load(MAT_simmats).output_simmats; 
@@ -137,6 +140,9 @@ for subjectI = 1:numel(subjectStrs)
                 if daysDiff(sessI, sessJ) > 20
                     continue; 
                 end
+                if ismember(sessions{sessI}, excludedSessionStrs) || ismember(sessions{sessJ}, excludedSessionStrs)
+                    continue;
+                end
                 % if (strcmp(tasks{sessI}, 'AL') && ismember(sessions(sessI), {'20171121', '20171123'})) || (strcmp(tasks{sessJ}, 'AL') && ismember(sessions(sessJ), {'20171121', '20171123'}))
                 %     continue; 
                 % end
@@ -178,9 +184,9 @@ for subjectI = 1:numel(subjectStrs)
         R2_adj  = compute_R2_adj(Y_hat, Y, size(X, 2)); 
         R2      = compute_R2(Y_hat, Y); 
 
-        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.X12.b         = b;
-        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.X12.R2_adj    = R2_adj;
-        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.X12.R2        = R2;
+        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X12.b         = b;
+        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X12.R2_adj    = R2_adj;
+        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X12.R2        = R2;
     
     
         % regression model for including X1, X2 and X3
@@ -191,9 +197,22 @@ for subjectI = 1:numel(subjectStrs)
         R2_adj  = compute_R2_adj(Y_hat, Y, size(X, 2));
         R2      = compute_R2(Y_hat, Y); 
 
-        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.X123.b        = b;
-        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.X123.R2_adj   = R2_adj;
-        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.X123.R2       = R2;    
+        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X123.b        = b;
+        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X123.R2_adj   = R2_adj;
+        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X123.R2       = R2;    
+
+
+        % regression model for including only X3
+        % yi = b0 + b1 * x3 + e
+        X       = [ones(n, 1), X3];
+        b       = compute_OLS_coeff(X, Y);
+        Y_hat   = X * b;
+        R2_adj  = compute_R2_adj(Y_hat, Y, size(X, 2));
+        R2      = compute_R2(Y_hat, Y); 
+
+        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X3.b        = b;
+        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X3.R2_adj   = R2_adj;
+        output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X3.R2       = R2;    
     
         subplot(nHors, nVers, currSubplotI);
         % between-task: cyan
