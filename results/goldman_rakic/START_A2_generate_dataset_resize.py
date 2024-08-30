@@ -29,7 +29,7 @@ for newSize in resizes:
     ])
 
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=None)
-    for i in np.arange(5):
+    for i in np.arange(300):
         out = transforms(img)
         out = out.cpu().numpy()
 

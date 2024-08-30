@@ -10,6 +10,7 @@
 
 module load StdEnv/2020  gcc/9.3.0
 module load fsl/6.0.4
+module load gcc opencv python scipy-stack
 
 source ~/tcompo/bin/activate
 
