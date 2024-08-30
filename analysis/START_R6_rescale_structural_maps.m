@@ -43,7 +43,7 @@ for sizeI = 1:numel(resizes)
     for imageI = 1:n_images
         image                           = imread(fullfile(image_dir, image_files{imageI})); 
         
-        image                           = rgb2gray(image);
+        % image                           = im2gray(image);
         
         image_binary                    = ones(size(image));
         
