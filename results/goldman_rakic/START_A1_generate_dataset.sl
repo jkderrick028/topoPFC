@@ -1,7 +1,7 @@
 #!/bin/bash -l
 #SBATCH --job-name=START_A1_generate_dataset
 #SBATCH --account=def-mmur
-#SBATCH --time=0-5:59
+#SBATCH --time=0-1:59
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=8G 
 #SBATCH --mail-user=jkderrick.jobscheduler@gmail.com

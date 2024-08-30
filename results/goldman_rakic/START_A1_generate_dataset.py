@@ -25,7 +25,7 @@ transforms = v2.Compose([
 ])
 
 fig, ax = plt.subplots(1, 1)
-for i in np.arange(1500):
+for i in np.arange(300):
     out = transforms(img)
     out = out.cpu().numpy()
     out = np.transpose(out, (1, 2, 0))

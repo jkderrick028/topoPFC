@@ -31,7 +31,7 @@ n_images                            = numel(image_files);
 
 figI_1                              = 10;
 figI_2                              = 11; 
-monitor                             = 1; 
+monitor                             = 0; 
 
 moranIs                             = cell(n_images, 1); 
 figI_moranI                         = 13; 
