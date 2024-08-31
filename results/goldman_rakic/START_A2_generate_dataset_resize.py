@@ -10,7 +10,8 @@ torch.manual_seed(1)
 
 H, W = 1012, 1012
 
-resizes = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+# resizes = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+resizes = [0.5]
 
 for newSize in resizes:
     results_path = os.path.join(os.getcwd(), f'generated_dataset_{newSize}')
