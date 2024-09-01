@@ -13,7 +13,8 @@ projectPath                         = setProjectPath();
 [currPath, currfilename, currext]   = fileparts(mfilename('fullpath'));
 ANALYSIS                            = 'goldman_rakic';
 
-resizes = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]; 
+% resizes = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]; 
+resizes = [0.5]; 
 
 for sizeI = 1:numel(resizes)
     resultsPath                     = fullfile(projectPath, 'results', ANALYSIS, currfilename, sprintf('resize_%.1f', resizes(sizeI)));

@@ -18,6 +18,14 @@ subjectStrs = {'Theo', 'Buzz'};
 arrayStrs = {'NSP1','NSP0'};
 taskStrs = {'ODR', 'KM', 'AL'}; 
 
+signalType = 'mcTuning'; 
+
+arrayColors = {
+    [255, 204, 229]/255,    % Theo, NSP0
+    [19, 74, 142]/255,      % Buzz, NSP1
+    [0.3010 0.7450 0.9330]  % Buzz, NSP0            
+};
+
 %% preparation
 projectPath                         = setProjectPath();
 [currPath, currfilename, currext]   = fileparts(mfilename('fullpath'));
@@ -25,7 +33,29 @@ ANALYSIS                            = 'goldman_rakic';
 resultsPath                         = fullfile(projectPath, 'results', ANALYSIS, currfilename);
 if ~exist(resultsPath, 'dir'), mkdir(resultsPath); end
 
-resizes = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]; 
+n_tasks = numel(taskStrs);
+
+task_mean_monkeyB_NSP1      = []; 
+
+for taskI = 1:n_tasks
+    MAT_donutACF            = fullfile(resultsPath, sprintf('START_B3_donutACF_fitting_summary_%s_%s.mat', taskStrs{taskI}, signalType));
+    donutACF_output         = load(MAT_donutACF).output; 
+
+    for subjectI = 1:numel(subjectStrs)
+        for arrayI = 1:numel(arrayStrs)
+            if strcmp(subjectStrs{subjectI}, 'Theo') && strcmp(arrayStrs{arrayI}, 'NSP1')
+                continue;                 
+            end
+            I_real_combine  = donutACF_output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).fitting.X;            
+
+            if strcmp(subjectStrs{subjectI}, 'Buzz') && strcmp(arrayStrs{arrayI}, 'NSP1')
+                task_mean_monkeyB_NSP1 = [task_mean_monkeyB_NSP1; mean(I_real_combine, 1)]; 
+            end
+        end % arrayI
+    end % subjectI
+end % taskI 
+
+resizes = [0.4, 0.5, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]; 
 
 nHors = 3;
 nVers = 3;
@@ -34,8 +64,9 @@ figI_acf = 10;
 figure(figI_acf); clf(figI_acf); 
 
 for sizeI=1:numel(resizes)
-    MAT_siulation               = fullfile(projectPath, 'results', ANALYSIS, 'START_R6_rescale_structural_maps', sprintf('output_%.1f.mat', resizes(sizeI))); 
+    MAT_siulation               = fullfile(projectPath, 'results', ANALYSIS, 'START_R6_rescale_structural_maps', sprintf('resize_%.1f', resizes(sizeI)), sprintf('output_%.1f.mat', resizes(sizeI))); 
     simulation_results          = load(MAT_siulation).output.moranIs; 
+    distances                   = [0, simulation_results{1}.uniqueDists]; 
     I_real_combine              = []; 
     n_simulations               = numel(simulation_results);
 
@@ -48,8 +79,14 @@ for sizeI=1:numel(resizes)
     subplot(nHors, nVers, sizeI); 
     hold on;
     yline(0, 'LineWidth', 1, 'Color', [120, 120, 120]/255, 'LineStyle', '--'); 
-    plot(distances, I_real_combine', 'Color', [200, 200, 200]/255, 'LineWidth', 1);
-    plot(distances, mean(I_real_combine, 1), 'Color', 'k', 'LineWidth', 1.5); 
+    a = plot(distances, I_real_combine', 'Color', [200, 200, 200]/255, 'LineWidth', 0.3);
+    alpha(a, 0.5)
+    plot(distances, mean(I_real_combine, 1, 'omitnan'), 'Color', 'k', 'LineWidth', 2); 
+
+    plot(distances, task_mean_monkeyB_NSP1(1, :), 'Color', [0.9290 0.6940 0.1250], 'LineStyle', '-', 'LineWidth', 2);   % ODR, yellow
+    plot(distances, task_mean_monkeyB_NSP1(2, :), 'Color', [0.4660 0.6740 0.1880], 'LineStyle', '-', 'LineWidth', 2);   % VWM, green
+    plot(distances, task_mean_monkeyB_NSP1(3, :), 'Color', [0.4940 0.1840 0.5560], 'LineStyle', '-', 'LineWidth', 2);   % CDM, purple
+
     xlim([0, 3.65]);
     ylim([-0.3, 1]);
     xlabel('distances (mm)');
