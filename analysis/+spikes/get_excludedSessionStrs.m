@@ -8,7 +8,9 @@ excludedSessionStrs = { '20171227', ... % Buzz, Ketamine_KeyMapWM2, too few corr
                         '20170623', ... % Theo, Ketamine_KeyMapWM, only 2 columns
                         '20170704', ... % Theo, Ketamine_KeyMapWM, only 2 columns
                         '20170710', ... % Theo, Saline_KeyMapWM3, only 3 correct trials
-                        '20170720'  ... % Theo, KM, low performance 
+                        '20170720', ... % Theo, KM, low performance 
+                        '20170616', ... % Theo, KM, only 51 trials, a condition has 1 correct trial
+                        '20170614'  ... % Theo, KM, low total number of trials
                        };
 
 end 

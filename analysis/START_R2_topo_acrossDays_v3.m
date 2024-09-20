@@ -5,13 +5,15 @@ function START_R2_topo_acrossDays_v3(varargin)
 % X2=0; if within task2, X1=0, X2=1; if between task1 and task2, X1=0,
 % X2=0;
 % 
-% We will compute the adjusted R2 for when including X1, X2 only and when
-% including both X1, X2 and X3.
+% We will compute the adjusted R2 for when including
+% 1.    X1, X2, X2
+% 2.    X1, X2
+% 3.    X3
 % 
 % The expectation is that the adjusted R2 when including X1, X2 and X3 will
 % be not much higher or even lower than when including only X1 and X2.
 % 
-% last modified: 2024.08.05
+% last modified: 2024.09.03
 
 import spikes.*;
 import utils_dx.*;
@@ -52,6 +54,7 @@ if exist(PS_corrmats, 'file')
 end
 
 figI                                = 10; 
+figI_barplots                       = 11; 
 
 for subjectI=1:numel(subjectStrs)    
     daysDiff                        = daysAcrossTasks.(subjectStrs{subjectI}).daysDiff; 
@@ -102,6 +105,7 @@ if exist(PS_results, 'file')
     system(['rm ' PS_results]); 
 end
 
+figure(figI_barplots); clf(figI_barplots); 
 figure(figI); clf(figI); 
 nHors                               = numel(subjectStrs);
 nVers                               = numel(arrayStrs);
@@ -214,6 +218,7 @@ for subjectI = 1:numel(subjectStrs)
         output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X3.R2_adj   = R2_adj;
         output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X3.R2       = R2;    
     
+        figure(figI); 
         subplot(nHors, nVers, currSubplotI);
         % between-task: cyan
         hold on; 
@@ -229,10 +234,30 @@ for subjectI = 1:numel(subjectStrs)
         
         title(sprintf('%s %s', subjectStrs{subjectI}, arrayStrs{arrayI})); 
         xlabel('days');
-        ylabel('corr');
+        ylabel('correlation');
         xlim([0, 20]);
         ylim([-0.1, 1]);
+        yticks(0:0.2:1); 
         box off; 
+
+        figure(figI_barplots); 
+        subplot(nHors, nVers, currSubplotI);
+        R2s = [
+            output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X123.R2,...
+            output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X12.R2,...
+            output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X3.R2
+        ]; 
+        bar(R2s); 
+        title(sprintf('%s %s', subjectStrs{subjectI}, arrayStrs{arrayI}));
+        xlabel('models');
+        ylabel('explained variance');
+        xlim([0, 4]);
+        ylim([0, 1]);
+        yticks(0:0.2:1); 
+        xticks(1:3);
+        xticklabels({'task+time', 'task', 'time'}); 
+        box off; 
+
         currSubplotI = currSubplotI + 1; 
     end % arrayI 
 end % subjectI
@@ -240,6 +265,10 @@ end % subjectI
 pageHeadings                                = [];
 pageHeadings{1}                             = sprintf('%s topo corrs across days', signalType);
 addHeadingAndPrint(pageHeadings, PS_results, figI);
+
+pageHeadings                                = [];
+pageHeadings{1}                             = sprintf('explained variance');
+addHeadingAndPrint(pageHeadings, PS_results, figI_barplots);
 
 save(MAT_output, 'output', '-v7.3');
 close all;

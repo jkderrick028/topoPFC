@@ -33,6 +33,9 @@ ANALYSIS                            = 'goldman_rakic';
 resultsPath                         = fullfile(projectPath, 'results', ANALYSIS, currfilename);
 if ~exist(resultsPath, 'dir'), mkdir(resultsPath); end
 
+output                      = [];
+MAT_output                  = fullfile(resultsPath, sprintf('%s_output.mat', currfilename)); 
+
 n_tasks = numel(taskStrs);
 
 task_mean_monkeyB_NSP1      = []; 
@@ -55,10 +58,10 @@ for taskI = 1:n_tasks
     end % subjectI
 end % taskI 
 
-resizes = [0.4, 0.5, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]; 
+resizes = [0.4, 0.8, 1.0, 1.2, 1.6, 2.0]; 
 
 nHors = 3;
-nVers = 3;
+nVers = 2;
 
 figI_acf = 10; 
 figure(figI_acf); clf(figI_acf); 
@@ -76,6 +79,27 @@ for sizeI=1:numel(resizes)
         I_real_combine          = [I_real_combine; I_real_this_sim]; 
     end % simI
 
+    % compute the confidence interval for each distance
+    lbs                         = [1];
+    ubs                         = [1]; 
+    for distI = 2:size(I_real_combine, 2)
+        % [lb, ub]                = compute_95_CI(I_real_combine(:, distI)); 
+        [lb, ub]                = compute_95_percentil(I_real_combine(:, distI)); 
+        % [lb, ub]                = compute_90_percentil(I_real_combine(:, distI));
+        
+        if  all(task_mean_monkeyB_NSP1(:, distI) >= lb) && all(task_mean_monkeyB_NSP1(:, distI) <= ub)
+            is_significant_distance = 1; 
+        else
+            is_significant_distance = 0; 
+        end
+        output.(sprintf('resize_%d', sizeI))(distI).lb      = lb;
+        output.(sprintf('resize_%d', sizeI))(distI).ub      = ub;
+        output.(sprintf('resize_%d', sizeI))(distI).data    = I_real_combine(:, distI);
+        output.(sprintf('resize_%d', sizeI))(distI).is_significant_distance = is_significant_distance;
+        lbs(end+1)              = lb;
+        ubs(end+1)              = ub; 
+    end % distI 
+
     subplot(nHors, nVers, sizeI); 
     hold on;
     yline(0, 'LineWidth', 1, 'Color', [120, 120, 120]/255, 'LineStyle', '--'); 
@@ -86,6 +110,9 @@ for sizeI=1:numel(resizes)
     plot(distances, task_mean_monkeyB_NSP1(1, :), 'Color', [0.9290 0.6940 0.1250], 'LineStyle', '-', 'LineWidth', 2);   % ODR, yellow
     plot(distances, task_mean_monkeyB_NSP1(2, :), 'Color', [0.4660 0.6740 0.1880], 'LineStyle', '-', 'LineWidth', 2);   % VWM, green
     plot(distances, task_mean_monkeyB_NSP1(3, :), 'Color', [0.4940 0.1840 0.5560], 'LineStyle', '-', 'LineWidth', 2);   % CDM, purple
+
+    plot(distances, lbs, 'Color', 'r', 'LineWidth', 1, 'LineStyle', '--');
+    plot(distances, ubs, 'Color', 'r', 'LineWidth', 1, 'LineStyle', '--');
 
     xlim([0, 3.65]);
     ylim([-0.3, 1]);
@@ -102,6 +129,43 @@ end
 pageHeadings                = 'ACFs for rescaled structural maps';
 addHeadingAndPrint(pageHeadings, PS_acfs, figI_acf); 
 
+save(MAT_output, 'output', '-v7.3'); 
+
 close all;
 
 end % START_R6_all_rescaled_ACFs
+
+
+function [lb, ub] = compute_95_CI(data)
+% compute 95% confidence interval
+% 
+% last modified: 2024.09.06
+
+mean_data   = mean(data);
+n           = numel(data);
+sigma       = std(data);
+
+lb          = mean_data - 1.96 * sigma / sqrt(n);
+ub          = mean_data + 1.96 * sigma / sqrt(n);
+
+end % function compute_95_CI
+
+function [lb, ub] = compute_95_percentil(data)
+% compute 95% confidence interval
+% 
+% last modified: 2024.09.06
+
+lb          = prctile(data, 2.5);
+ub          = prctile(data, 97.5);
+
+end % function compute_95_percentil
+
+function [lb, ub] = compute_90_percentil(data)
+% compute 95% confidence interval
+% 
+% last modified: 2024.09.06
+
+lb          = prctile(data, 5);
+ub          = prctile(data, 95);
+
+end % function compute_90_percentil
