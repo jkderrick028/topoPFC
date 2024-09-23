@@ -15,7 +15,7 @@ close all;
 
 p                                   = inputParser;
 p.addParameter('taskStr', 'KM');                                % KM, AL, ODR
-p.addParameter('signalType', 'mcTuning');                       % or residual or task_evoked
+p.addParameter('signalType', 'mcTuning');                       % doesn't work for residuals because the number of trials differs across partitions
 
 parse(p, varargin{:});
 taskStr                             = p.Results.taskStr; 
@@ -82,10 +82,7 @@ for subjectI=1:numel(subjectStrs)
             switch signalType
                 case 'mcTuning'
                     signalProfile_1         = mcTuningProfile_1; 
-                    signalProfile_2         = mcTuningProfile_2; 
-                case 'residual'
-                    signalProfile_1         = residualRaster_1; 
-                    signalProfile_2         = residualRaster_2;             
+                    signalProfile_2         = mcTuningProfile_2;                  
             end
 
             signalProfile_1                 = reshape(signalProfile_1, size(signalProfile_1, 1), []);
