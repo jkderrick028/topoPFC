@@ -286,6 +286,11 @@ for subjectI=1:numel(subjectStrs)
             end
             if abs(daysDiff(dayI, dayJ)) <= maxDays && abs(daysDiff(dayI, dayJ)) > 0 && found_first==0 
                 found_first = 1;
+                for i=(dayI+1):dayJ
+                    if ~strcmp(tasks{i}, tasks{dayJ})
+                        daysDiff(i, dayJ) = 0; 
+                    end
+                end % i                
                 continue; 
             end
             if found_first
@@ -293,22 +298,6 @@ for subjectI=1:numel(subjectStrs)
             end
         end % dayJ 
     end % dayI
-
-    for dayJ=2:numel(sessions)
-        found_first = 0;
-        for dayI=1:(dayJ-1)
-            if strcmp(tasks{dayI}, tasks{dayJ})
-                continue;
-            end
-            if abs(daysDiff(dayI, dayJ)) <= maxDays && abs(daysDiff(dayI, dayJ)) > 0 && found_first==0 
-                found_first = 1;
-                continue; 
-            end
-            if found_first
-                daysDiff(dayI, dayJ) = 0;  
-            end
-        end % dayI 
-    end % dayJ 
 
     sessPairInds= find(abs(daysDiff) <= maxDays & abs(daysDiff) > 0); 
     sz          = size(daysDiff); 
