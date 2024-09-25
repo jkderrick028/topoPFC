@@ -17,6 +17,7 @@ addParameter(p, 'range', [-1, 1]);
 addParameter(p, 'isSignificant', 0);
 addParameter(p, 'elements', 'upper');       % which elements of the correlation matrix to include when computing avg correlation. 'upper', 'full'
 addParameter(p, 'nanColor', 'light_grey');
+addParameter(p, 'YDir_normal', 1);
 
 parse(p, corrMat, varargin{:});
 
@@ -28,6 +29,7 @@ range                   = p.Results.range;
 isSignificant           = p.Results.isSignificant;
 elements                = p.Results.elements;
 nanColor                = p.Results.nanColor;
+YDir_normal             = p.Results.YDir_normal; 
 
 h                       = imagesc(corrMat, range);
 axis square;
@@ -72,7 +74,9 @@ else
     text(side*0.7, side*0.7, sprintf('\\fontsize{12}%s', textStr));
 end
     
-set(gca, 'YDir', 'normal');
+if YDir_normal
+    set(gca, 'YDir', 'normal');
+end
 
 if exist('titleStr', 'var')
     title(strrep(titleStr, '_', ' '), 'FontSize', 12);
