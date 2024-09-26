@@ -11,6 +11,8 @@ import spikes.*;
 import utils_dx.*;
 import moranI.*;
 
+rng('default');
+
 close all;
 
 p                                   = inputParser;
@@ -87,6 +89,10 @@ for subjectI=1:numel(subjectStrs)
 
             signalProfile_1                 = reshape(signalProfile_1, size(signalProfile_1, 1), []);
             signalProfile_2                 = reshape(signalProfile_2, size(signalProfile_2, 1), []);
+            
+            %% to add some noise to one half of the data
+            % signalProfile_2                 = signalProfile_2 + randn(size(signalProfile_2));
+            % signalProfile_2                 = signalProfile_2 - mean(signalProfile_2, 2);
 
             donutACFresults                 = donutACF_channels_cv(signalProfile_1, signalProfile_2, setdiff(1:nChannelsTotal, chanLinearInds));
             titleStr                        = sprintf('%s', arrayStrs{arrayI});
