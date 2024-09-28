@@ -13,7 +13,3 @@ module load matlab
 matlab -nodisplay -r "START_B3_donutACF_cv('taskStr', 'ODR', 'signalType', 'mcTuning')"
 matlab -nodisplay -r "START_B3_donutACF_cv('taskStr', 'KM', 'signalType', 'mcTuning')"
 matlab -nodisplay -r "START_B3_donutACF_cv('taskStr', 'AL', 'signalType', 'mcTuning')"
-
-matlab -nodisplay -r "START_B3_donutACF_cv('taskStr', 'ODR', 'signalType', 'residual')"
-matlab -nodisplay -r "START_B3_donutACF_cv('taskStr', 'KM', 'signalType', 'residual')"
-matlab -nodisplay -r "START_B3_donutACF_cv('taskStr', 'AL', 'signalType', 'residual')"
