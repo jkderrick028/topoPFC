@@ -4,7 +4,7 @@ function START_R8_simmat_session_splits
 % 2. compute the similarity matrices for each half.  
 % 3. compute the similarity of these two similarity matrices.
 % 
-% last modified: 2024.09.23
+% last modified: 2024.10.01
 
 import topography.*; 
 import spikes.*;
@@ -76,8 +76,8 @@ for taskI=1:nTasks
                     tuning_2            = tuningProfile(:, cond_inds_split2(sampleI, :)); 
 
                     % % mean-centering
-                    % tuning_1            = tuning_1 - mean(tuning_1, 2); 
-                    % tuning_2            = tuning_2 - mean(tuning_2, 2);
+                    tuning_1            = tuning_1 - mean(tuning_1, 2); 
+                    tuning_2            = tuning_2 - mean(tuning_2, 2);
 
                     % corrmats for each half
                     corrmat_1           = corr(tuning_1', 'type', 'Pearson');
@@ -110,6 +110,12 @@ for subjectI=1:numel(subjectStrs)
         for taskI=1:numel(taskStrs)
             sim_corrmats        = [output.(taskStrs{taskI}).(subjectStrs{subjectI}).(arrayStrs{arrayI}).sim_corrmats]; 
             sim_corrmats        = mean(sim_corrmats, 1); 
+            
+            % t-test against 0
+            [h, p]              = ttest(sim_corrmats);
+            output.(taskStrs{taskI}).ttest.(subjectStrs{subjectI}).(arrayStrs{arrayI}).h = h;
+            output.(taskStrs{taskI}).ttest.(subjectStrs{subjectI}).(arrayStrs{arrayI}).p = p;
+            
             mean_tasks(taskI)   = mean(sim_corrmats);
             ste_tasks(taskI)    = std(sim_corrmats)/sqrt(numel(sim_corrmats)); 
         end % taskI
