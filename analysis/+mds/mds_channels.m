@@ -15,6 +15,9 @@ import utils_dx.sqmat2vec;
 import mds.*;
 
 
+if ~exist('nRows', 'var'), nRows = 10; end
+if ~exist('nCols', 'var'), nCols = 10; end
+
 nDims                                                   = 2;
 criterion                                               = 'metricstress';
 figInfo.nVerPan                                         = 2;
