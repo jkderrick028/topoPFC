@@ -13,7 +13,7 @@ function START_R2_topo_acrossDays_v3(varargin)
 % The expectation is that the adjusted R2 when including X1, X2 and X3 will
 % be not much higher or even lower than when including only X1 and X2.
 % 
-% last modified: 2024.09.03
+% last modified: 2024.10.08
 
 import spikes.*;
 import utils_dx.*;
@@ -55,6 +55,7 @@ end
 
 figI                                = 10; 
 figI_barplots                       = 11; 
+figI_bar_uniqueVar                  = 12; 
 
 for subjectI=1:numel(subjectStrs)    
     daysDiff                        = daysAcrossTasks.(subjectStrs{subjectI}).daysDiff; 
@@ -107,6 +108,8 @@ end
 
 figure(figI_barplots); clf(figI_barplots); 
 figure(figI); clf(figI); 
+figure(figI_bar_uniqueVar); clf(figI_bar_uniqueVar);
+
 nHors                               = numel(subjectStrs);
 nVers                               = numel(arrayStrs);
 currSubplotI                        = 1;
@@ -258,6 +261,23 @@ for subjectI = 1:numel(subjectStrs)
         xticklabels({'task+time', 'task', 'time'}); 
         box off; 
 
+        figure(figI_bar_uniqueVar);
+        subplot(nHors, nVers, currSubplotI);
+        R2s = [
+            output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X123.R2 - output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X3.R2, ...
+            output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X123.R2 - output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).regression.model_X12.R2
+        ];
+        bar(R2s);
+        title(sprintf('%s %s', subjectStrs{subjectI}, arrayStrs{arrayI}));
+        xlabel('models');
+        ylabel('unique variance explained');
+        xlim([0, 3]);
+        ylim([0, 1]);
+        yticks(0:0.2:1); 
+        xticks(1:2);
+        xticklabels({'task', 'time'}); 
+        box off; 
+
         currSubplotI = currSubplotI + 1; 
     end % arrayI 
 end % subjectI
@@ -269,6 +289,11 @@ addHeadingAndPrint(pageHeadings, PS_results, figI);
 pageHeadings                                = [];
 pageHeadings{1}                             = sprintf('explained variance');
 addHeadingAndPrint(pageHeadings, PS_results, figI_barplots);
+
+pageHeadings                                = [];
+pageHeadings{1}                             = sprintf('unique variance explained');
+addHeadingAndPrint(pageHeadings, PS_results, figI_bar_uniqueVar);
+
 
 save(MAT_output, 'output', '-v7.3');
 close all;
