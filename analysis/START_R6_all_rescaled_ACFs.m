@@ -2,7 +2,7 @@ function START_R6_all_rescaled_ACFs
 % plot the donutACFs for 1. ODR, 2. KM, and 3. AL tasks, then 4. the mean
 % on top of goldman-rakic simulations. 
 % 
-% to run this script, copy START_B3_donutACF_fitting_summary .mat files and
+% to run this script, copy START_B3_donutACF_fitting_summary_cv.mat files and
 % goldman-rakic simulation results (renaming to
 % Goldman_rakic_simulation.mat) to 'START_B8_all_donutACF_curves' directory
 % 
@@ -41,7 +41,7 @@ n_tasks = numel(taskStrs);
 task_mean_monkeyB_NSP1      = []; 
 
 for taskI = 1:n_tasks
-    MAT_donutACF            = fullfile(resultsPath, sprintf('START_B3_donutACF_fitting_summary_%s_%s.mat', taskStrs{taskI}, signalType));
+    MAT_donutACF            = fullfile(resultsPath, sprintf('START_B3_donutACF_fitting_summary_cv_%s_%s.mat', taskStrs{taskI}, signalType));
     donutACF_output         = load(MAT_donutACF).output; 
 
     for subjectI = 1:numel(subjectStrs)
@@ -111,8 +111,8 @@ for sizeI=1:numel(resizes)
     plot(distances, task_mean_monkeyB_NSP1(2, :), 'Color', [0.4660 0.6740 0.1880], 'LineStyle', '-', 'LineWidth', 2);   % VWM, green
     plot(distances, task_mean_monkeyB_NSP1(3, :), 'Color', [0.4940 0.1840 0.5560], 'LineStyle', '-', 'LineWidth', 2);   % CDM, purple
 
-    plot(distances, lbs, 'Color', 'r', 'LineWidth', 1, 'LineStyle', '--');
-    plot(distances, ubs, 'Color', 'r', 'LineWidth', 1, 'LineStyle', '--');
+    % plot(distances, lbs, 'Color', 'r', 'LineWidth', 1, 'LineStyle', '--');
+    % plot(distances, ubs, 'Color', 'r', 'LineWidth', 1, 'LineStyle', '--');
 
     xlim([0, 3.65]);
     ylim([-0.3, 1]);

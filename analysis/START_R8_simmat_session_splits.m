@@ -47,16 +47,16 @@ for taskI=1:nTasks
     output.(taskStrs{taskI}).cond_inds_split2 = cond_inds_split2;
 
     for subjectI=1:numel(subjectStrs)
-        MAT_spikeTuningVectors = fullfile(projectPath, 'results', 'spikeTuningVectors', sprintf('START_B1_extractSignal_%s', taskStrs{taskI}), sprintf('START_B1_extractSignal_%s_%s_channels_results.mat', taskStrs{taskI}, subjectStrs{subjectI})); 
-        spikeTuningResults = load(MAT_spikeTuningVectors).spikeTuningResults; 
+        MAT_spikeTuningVectors  = fullfile(projectPath, 'results', 'spikeTuningVectors', sprintf('START_B1_extractSignal_%s', taskStrs{taskI}), sprintf('START_B1_extractSignal_%s_%s_channels_results.mat', taskStrs{taskI}, subjectStrs{subjectI})); 
+        spikeTuningResults      = load(MAT_spikeTuningVectors).spikeTuningResults; 
 
         switch subjectStrs{subjectI}
             case 'Buzz'
-                sessionStrs = sessionStrsB; 
+                sessionStrs     = sessionStrsB; 
             case 'Theo'
-                sessionStrs = sessionStrsT; 
+                sessionStrs     = sessionStrsT; 
         end
-        sessionStrs         = setdiff(sessionStrs, excludedSessionStrs);
+        sessionStrs             = setdiff(sessionStrs, excludedSessionStrs);
         
         for arrayI=1:numel(arrayStrs)
             for sessI=1:numel(sessionStrs)
@@ -90,7 +90,70 @@ for taskI=1:nTasks
             end % sessI 
         end % arrayI 
     end % subjectI 
+end % taskI
+
+% computing the upper bound by splitting the spikeRateRasters into two
+% halves at the trial level, estimating tuning profiles for each half,
+% computing tuning similarity matrices for each half, and correlating the
+% simmilarity matrices. 
+
+n_repetitions                   = 20; 
+
+for taskI=1:nTasks
+    [sessionStrsB, sessionStrsT] = getSessInfo(taskStrs{taskI}); 
+
+    for subjectI = 1:numel(subjectStrs)
+        MAT_spikeTuningVectors  = fullfile(projectPath, 'results', 'spikeTuningVectors', sprintf('START_B1_extractSignal_%s', taskStrs{taskI}), sprintf('START_B1_extractSignal_%s_%s_channels_results.mat', taskStrs{taskI}, subjectStrs{subjectI})); 
+        spikeTuningResults      = load(MAT_spikeTuningVectors).spikeTuningResults; 
+
+        switch subjectStrs{subjectI}
+            case 'Buzz'
+                sessionStrs     = sessionStrsB; 
+            case 'Theo'
+                sessionStrs     = sessionStrsT; 
+        end
+        sessionStrs             = setdiff(sessionStrs, excludedSessionStrs);
+
+        n_sessions              = numel(sessionStrs);
+        
+        for arrayI = 1:numel(arrayStrs)
+            simmat_corrs        = nan(n_sessions, n_repetitions);
+    
+            for sessI = 1:n_sessions
+                switch taskStrs{taskI}
+                    case 'ODR'
+                        firingRateRaster    = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).quadrants.firingRateRaster; 
+                        uniqueConditions    = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).quadrants.uniqueConditions;
+                        conditionInfo       = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).quadrants.conditionInfo;
+                    case 'KM'
+                        firingRateRaster    = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).nineLocations.firingRateRaster; 
+                        uniqueConditions    = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).nineLocations.uniqueConditions;
+                        conditionInfo       = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).nineLocations.conditionInfo;
+                    case 'AL'
+                        firingRateRaster    = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).tuning.firingRateRaster; 
+                        uniqueConditions    = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).tuning.uniqueConditions;
+                        conditionInfo       = spikeTuningResults.(arrayStrs{arrayI}).(sprintf('sess_%s', sessionStrs{sessI})).tuning.conditionInfo;
+                end
+
+                for repeatI = 1:n_repetitions
+                    [tuningProfile_1, mcTuningProfile_1, residualRaster_1, tuningProfile_2, mcTuningProfile_2, residualRaster_2] = split_session_2halves(firingRateRaster, conditionInfo, uniqueConditions); 
+                    
+                    mcTuningProfile_1       = reshape(mcTuningProfile_1, size(mcTuningProfile_1, 1), []);
+                    mcTuningProfile_2       = reshape(mcTuningProfile_2, size(mcTuningProfile_2, 1), []);
+
+                    simmat_1                = corr(mcTuningProfile_1', 'Type', 'Pearson');
+                    simmat_2                = corr(mcTuningProfile_2', 'Type', 'Pearson');
+        
+                    simmat_1                = sqmat2vec(simmat_1);
+                    simmat_2                = sqmat2vec(simmat_2);
+                    simmat_corrs(sessI, repeatI) = corr(simmat_1, simmat_2, 'Type', 'Pearson', 'Rows', 'complete'); 
+                end % repeatI
+            end % sessI
+            output.(taskStrs{taskI}).(subjectStrs{subjectI}).(arrayStrs{arrayI})(1).simmat_corrs    = simmat_corrs;
+        end % arrayI
+    end % subjectI
 end % taskI 
+
 
 figI_corr_summary               = 10;
 PS_corr_summary                 = fullfile(resultsPath, sprintf('%s_corr_session_splits.ps', currfilename));
@@ -106,6 +169,7 @@ for subjectI=1:numel(subjectStrs)
     for arrayI=1:numel(arrayStrs)
         mean_tasks              = nan(1, numel(taskStrs));        
         ste_tasks               = nan(1, numel(taskStrs));
+        upper_bound_tasks       = nan(1, numel(taskStrs)); 
 
         for taskI=1:numel(taskStrs)
             sim_corrmats        = [output.(taskStrs{taskI}).(subjectStrs{subjectI}).(arrayStrs{arrayI}).sim_corrmats]; 
@@ -117,7 +181,11 @@ for subjectI=1:numel(subjectStrs)
             output.(taskStrs{taskI}).ttest.(subjectStrs{subjectI}).(arrayStrs{arrayI}).p = p;
             
             mean_tasks(taskI)   = mean(sim_corrmats);
-            ste_tasks(taskI)    = std(sim_corrmats)/sqrt(numel(sim_corrmats)); 
+            ste_tasks(taskI)    = std(sim_corrmats)/sqrt(numel(sim_corrmats));
+
+            % upper bound
+            simmat_corrs        = output.(taskStrs{taskI}).(subjectStrs{subjectI}).(arrayStrs{arrayI})(1).simmat_corrs; 
+            upper_bound_tasks(taskI) = mean(simmat_corrs, 'all'); 
         end % taskI
         
         subplot(nHors, nVers, currSubplotI);
@@ -133,6 +201,10 @@ for subjectI=1:numel(subjectStrs)
         yticklabels(0:0.2:1); 
         ylim([0, 1]); 
         title(sprintf('%s %s', subjectStrs{subjectI}, arrayStrs{arrayI})); 
+
+        % plotting the upper bound
+        errorbar(1:numel(taskStrs), upper_bound_tasks, 0, '.', 'LineStyle', 'none', 'Color', [120, 120, 120]/255);
+
         currSubplotI            = currSubplotI + 1; 
     end % arrayI
 end % subjectI 
@@ -146,3 +218,33 @@ save(MAT_output, 'output', '-v7.3');
 close all; 
 end % START_R8_simmat_session_splits
 
+
+
+function [tuningProfile_1, mcTuningProfile_1, residualRaster_1, tuningProfile_2, mcTuningProfile_2, residualRaster_2] = split_session_2halves(firingRateRaster, conditionInfo, uniqueConditions)
+% 
+% last modified: 2024.09.20
+
+import spikes.extractTuningANDresiduals; 
+
+half1_cond_inds         = [];
+half2_cond_inds         = []; 
+
+for condI = 1:numel(uniqueConditions)
+    trl_inds_this_cond  = find(strcmp(conditionInfo, uniqueConditions{condI})); 
+    half1_this_cond     = randsample(trl_inds_this_cond, ceil(numel(trl_inds_this_cond)/2));
+    half2_this_cond     = setdiff(trl_inds_this_cond, half1_this_cond); 
+
+    half1_cond_inds     = [half1_cond_inds; half1_this_cond];
+    half2_cond_inds     = [half2_cond_inds; half2_this_cond]; 
+end % condI
+
+firingRateRaster1       = firingRateRaster(:, :, half1_cond_inds);
+firingRateRaster2       = firingRateRaster(:, :, half2_cond_inds);
+
+conditionInfo_1         = conditionInfo(half1_cond_inds);
+conditionInfo_2         = conditionInfo(half2_cond_inds);
+
+[tuningProfile_1, mcTuningProfile_1, residualRaster_1] = extractTuningANDresiduals(firingRateRaster1, conditionInfo_1, uniqueConditions); 
+[tuningProfile_2, mcTuningProfile_2, residualRaster_2] = extractTuningANDresiduals(firingRateRaster2, conditionInfo_2, uniqueConditions); 
+
+end % function split_session_2halves

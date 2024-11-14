@@ -123,6 +123,8 @@ function [tuningProfile_1, mcTuningProfile_1, residualRaster_1, tuningProfile_2,
 
 import spikes.extractTuningANDresiduals; 
 
+rng('default'); 
+
 half1_cond_inds         = [];
 half2_cond_inds         = []; 
 

@@ -231,6 +231,8 @@ function [curves_fitted, s_fitted, R2, fwhm]  = fitting(corrs, dists, func)
 
 import utils_dx.*; 
 
+rng('default'); 
+
 switch func
     case 'gaussian'
         equation                    = '1.01*exp(-d^2/(2*s^2))-0.01';    % gaussian 

@@ -185,6 +185,10 @@ for subjectI = 1:numel(subjectStrs)
     select_DistInds                         = find(uniqueDists<=3.7);
     % select_DistInds                         = find(uniqueDists<=5.2);
     for arrayI = 1:numel(arrayStrs)
+        if strcmp(subjectStrs{subjectI}, 'Theo') && strcmp(arrayStrs{arrayI}, 'NSP1')
+            continue;
+        end
+
         I_real_combine                      = output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).I_real_combine;
         nSessions                           = size(I_real_combine, 1); 
         X                                   = [I_real_combine(:, select_DistInds)];
@@ -227,9 +231,11 @@ end % function START_B3_donutACF_fitting_summary_cv
 
 function [curves_fitted, s_fitted, R2, fwhm]  = fitting(corrs, dists, func)
 % 
-% last modified: 2023.09.11
+% last modified: 2023.11.14
 
 import utils_dx.*; 
+
+rng('default'); 
 
 switch func
     case 'gaussian'
