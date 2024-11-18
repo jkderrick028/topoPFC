@@ -97,7 +97,7 @@ end % taskI
 % computing tuning similarity matrices for each half, and correlating the
 % simmilarity matrices. 
 
-n_repetitions                   = 20; 
+n_repetitions                   = 100; 
 
 for taskI=1:nTasks
     [sessionStrsB, sessionStrsT] = getSessInfo(taskStrs{taskI}); 
