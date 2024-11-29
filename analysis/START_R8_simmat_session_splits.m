@@ -340,6 +340,8 @@ for subjectI = 1:numel(subjectStrs)
         output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).mean_task_combs        = mean_task_combs; 
         output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).ste_task_combs         = ste_task_combs; 
         output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).noise_ceilings         = noise_ceilings; 
+
+        currSubplotI            = currSubplotI + 1; 
     end % arrayI 
 end % subjectI
 
