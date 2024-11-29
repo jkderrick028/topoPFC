@@ -6,7 +6,7 @@ function START_R6_all_rescaled_ACFs
 % goldman-rakic simulation results (renaming to
 % Goldman_rakic_simulation.mat) to 'START_B8_all_donutACF_curves' directory
 % 
-% last modified: 2024.04.18
+% last modified: 2024.11.19
 
 
 import utils_dx.*; 
@@ -38,7 +38,8 @@ MAT_output                  = fullfile(resultsPath, sprintf('%s_output.mat', cur
 
 n_tasks = numel(taskStrs);
 
-task_mean_monkeyB_NSP1      = []; 
+task_mean_monkeyB_NSP1      = [];
+task_mean_FWHMs_monkeyB_NSP1= [];
 
 for taskI = 1:n_tasks
     MAT_donutACF            = fullfile(resultsPath, sprintf('START_B3_donutACF_fitting_summary_cv_%s_%s.mat', taskStrs{taskI}, signalType));
@@ -49,10 +50,12 @@ for taskI = 1:n_tasks
             if strcmp(subjectStrs{subjectI}, 'Theo') && strcmp(arrayStrs{arrayI}, 'NSP1')
                 continue;                 
             end
-            I_real_combine  = donutACF_output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).fitting.X;            
+            I_real_combine  = donutACF_output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).fitting.X;  
+            fwhms           = donutACF_output.(subjectStrs{subjectI}).(arrayStrs{arrayI}).fitting.fwhm;
 
             if strcmp(subjectStrs{subjectI}, 'Buzz') && strcmp(arrayStrs{arrayI}, 'NSP1')
-                task_mean_monkeyB_NSP1 = [task_mean_monkeyB_NSP1; mean(I_real_combine, 1)]; 
+                task_mean_monkeyB_NSP1          = [task_mean_monkeyB_NSP1; mean(I_real_combine, 1)]; 
+                task_mean_FWHMs_monkeyB_NSP1    = [task_mean_FWHMs_monkeyB_NSP1; mean(fwhms)]; 
             end
         end % arrayI
     end % subjectI
@@ -73,46 +76,49 @@ for sizeI=1:numel(resizes)
     I_real_combine              = []; 
     n_simulations               = numel(simulation_results);
 
+    FWHMs_structural            = nan(n_simulations, 1); 
     for simI = 1:n_simulations
         I_real_this_sim         = [simulation_results{simI}.I_real]; 
         I_real_this_sim         = [1, I_real_this_sim]; 
-        I_real_combine          = [I_real_combine; I_real_this_sim]; 
+        I_real_combine          = [I_real_combine; I_real_this_sim];
+        [curves_fitted, s_fitted, R2, fwhm]  = fitting(I_real_this_sim, distances, 'laplacian');
+        FWHMs_structural(simI)  = fwhm; 
     end % simI
 
-    % compute the confidence interval for each distance
-    lbs                         = [1];
-    ubs                         = [1]; 
-    for distI = 2:size(I_real_combine, 2)
-        % [lb, ub]                = compute_95_CI(I_real_combine(:, distI)); 
-        [lb, ub]                = compute_95_percentil(I_real_combine(:, distI)); 
-        % [lb, ub]                = compute_90_percentil(I_real_combine(:, distI));
-        
-        if  all(task_mean_monkeyB_NSP1(:, distI) >= lb) && all(task_mean_monkeyB_NSP1(:, distI) <= ub)
-            is_significant_distance = 1; 
-        else
-            is_significant_distance = 0; 
-        end
-        output.(sprintf('resize_%d', sizeI))(distI).lb      = lb;
-        output.(sprintf('resize_%d', sizeI))(distI).ub      = ub;
-        output.(sprintf('resize_%d', sizeI))(distI).data    = I_real_combine(:, distI);
-        output.(sprintf('resize_%d', sizeI))(distI).is_significant_distance = is_significant_distance;
-        lbs(end+1)              = lb;
-        ubs(end+1)              = ub; 
-    end % distI 
+    color_ODR                   = [0.9290 0.6940 0.1250];   % ODR, yellow
+    color_KM                    = [0.4660 0.6740 0.1880];   % VWM, green
+    color_AL                    = [0.4940 0.1840 0.5560];   % CDM, purple
+    color_structural            = [150, 150, 150]/255;      % grey
 
     subplot(nHors, nVers, sizeI); 
     hold on;
     yline(0, 'LineWidth', 1, 'Color', [120, 120, 120]/255, 'LineStyle', '--'); 
+    
+    % plotting the individual structural ACFs
     a = plot(distances, I_real_combine', 'Color', [200, 200, 200]/255, 'LineWidth', 0.3);
     alpha(a, 0.5)
-    plot(distances, mean(I_real_combine, 1, 'omitnan'), 'Color', 'k', 'LineWidth', 2); 
+    % plot(distances, mean(I_real_combine, 1, 'omitnan'), 'Color', 'k', 'LineWidth', 2); 
 
-    plot(distances, task_mean_monkeyB_NSP1(1, :), 'Color', [0.9290 0.6940 0.1250], 'LineStyle', '-', 'LineWidth', 2);   % ODR, yellow
-    plot(distances, task_mean_monkeyB_NSP1(2, :), 'Color', [0.4660 0.6740 0.1880], 'LineStyle', '-', 'LineWidth', 2);   % VWM, green
-    plot(distances, task_mean_monkeyB_NSP1(3, :), 'Color', [0.4940 0.1840 0.5560], 'LineStyle', '-', 'LineWidth', 2);   % CDM, purple
+    lower_bound                 = prctile(I_real_combine, 2.5, 1); 
+    upper_bound                 = prctile(I_real_combine, 97.5, 1); 
 
-    % plot(distances, lbs, 'Color', 'r', 'LineWidth', 1, 'LineStyle', '--');
-    % plot(distances, ubs, 'Color', 'r', 'LineWidth', 1, 'LineStyle', '--');
+    plot(distances, lower_bound, 'Color', color_structural, 'LineWidth', 1.5, 'LineStyle', '--'); 
+    plot(distances, upper_bound, 'Color', color_structural, 'LineWidth', 1.5, 'LineStyle', '--'); 
+
+    FWHM_structural_pct_lower   = prctile(FWHMs_structural, 2.5);
+    FWHM_structural_pct_upper   = prctile(FWHMs_structural, 97.5);
+
+    scatter([FWHM_structural_pct_lower, FWHM_structural_pct_upper], [0, 0], 15, 'filled', 'o', 'MarkerFaceColor', color_structural);
+
+    plot(distances, task_mean_monkeyB_NSP1(1, :), 'Color', color_ODR, 'LineStyle', '-', 'LineWidth', 2);   % ODR, yellow
+    plot(distances, task_mean_monkeyB_NSP1(2, :), 'Color', color_KM, 'LineStyle', '-', 'LineWidth', 2);   % VWM, green
+    plot(distances, task_mean_monkeyB_NSP1(3, :), 'Color', color_AL, 'LineStyle', '-', 'LineWidth', 2);   % CDM, purple
+
+
+    % plotting the mean FWHM of functional ACFs for each task
+    xline(task_mean_FWHMs_monkeyB_NSP1(1), 'Color', color_ODR, 'LineStyle', '--', 'LineWidth', 0.8); 
+    xline(task_mean_FWHMs_monkeyB_NSP1(2), 'Color', color_KM, 'LineStyle', '--', 'LineWidth', 0.8); 
+    xline(task_mean_FWHMs_monkeyB_NSP1(3), 'Color', color_AL, 'LineStyle', '--', 'LineWidth', 0.8); 
 
     xlim([0, 3.65]);
     ylim([-0.3, 1]);
@@ -136,36 +142,59 @@ close all;
 end % START_R6_all_rescaled_ACFs
 
 
-function [lb, ub] = compute_95_CI(data)
-% compute 95% confidence interval
+function [curves_fitted, s_fitted, R2, fwhm]  = fitting(corrs, dists, func)
 % 
-% last modified: 2024.09.06
+% last modified: 2023.09.11
 
-mean_data   = mean(data);
-n           = numel(data);
-sigma       = std(data);
+import utils_dx.*; 
 
-lb          = mean_data - 1.96 * sigma / sqrt(n);
-ub          = mean_data + 1.96 * sigma / sqrt(n);
+rng('default'); 
 
-end % function compute_95_CI
+switch func
+    case 'gaussian'
+        equation            = '1.01*exp(-d^2/(2*s^2))-0.01';    % gaussian 
+    case 'laplacian'
+        equation            = '1.02*exp(-d/s)-0.02';            % laplacian
+end
 
-function [lb, ub] = compute_95_percentil(data)
-% compute 95% confidence interval
+myfittype                   = fittype(equation,...
+    'independent',{'d'},...
+    'coefficients',{'s'}); 
+
+nSessions                   = size(corrs, 1); 
+
+curves_fitted               = nan(nSessions, numel(dists)); 
+s_fitted                    = nan(nSessions, 1);
+
+for sessI = 1:nSessions
+    myfit                   = fit(dists', corrs(sessI, :)', myfittype);
+    s                       = myfit.s;
+    s_fitted(sessI)         = s;
+    switch func
+        case 'gaussian'
+            curves_fitted(sessI, :) = 1.01*exp(-dists.^2/(2*s^2))-0.01;     % gaussian
+        case 'laplacian'
+            curves_fitted(sessI, :) = 1.02*exp(-dists./s)-0.02;             % laplacian
+    end
+end % sessI 
+
+% R2                          = computeR2(corrs(:, 2:end), curves_fitted(:, 2:end));
+R2                          = computeR2(corrs, curves_fitted);
+fwhm                        = computeFWHM(s_fitted, func); 
+
+end 
+
+
+function fwhm = computeFWHM(s, func)
+% compute fwhm for gaussian and laplacian
 % 
-% last modified: 2024.09.06
+% last modified: 2023.09.14
 
-lb          = prctile(data, 2.5);
-ub          = prctile(data, 97.5);
+switch func
+    case 'gaussian'
+        fwhm = 2 * abs(s) * sqrt(2 * log(2));
+    case 'laplacian'
+        fwhm = 2 * s * log(2); 
+end
 
-end % function compute_95_percentil
-
-function [lb, ub] = compute_90_percentil(data)
-% compute 95% confidence interval
-% 
-% last modified: 2024.09.06
-
-lb          = prctile(data, 5);
-ub          = prctile(data, 95);
-
-end % function compute_90_percentil
+end

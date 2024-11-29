@@ -88,7 +88,6 @@ simulation_results          = load(MAT_siulation).output.moranIs;
 I_real_combine              = []; 
 n_simulations               = numel(simulation_results);
 
-
 FWHMs_structural            = nan(n_simulations, 1); 
 for simI = 1:n_simulations
     I_real_this_sim         = [simulation_results{simI}.I_real]; 
