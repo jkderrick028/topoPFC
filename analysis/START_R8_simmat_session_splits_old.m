@@ -4,7 +4,7 @@ function START_R8_simmat_session_splits
 % 2. compute the similarity matrices for each half.  
 % 3. compute the similarity of these two similarity matrices.
 % 
-% last modified: 2024.12.03
+% last modified: 2024.10.01
 
 import topography.*; 
 import spikes.*;
@@ -62,7 +62,7 @@ for taskI=1:nTasks
         
         for arrayI=1:numel(arrayStrs)
             %% only save simmats for half 1
-            simmats                     = nan(numel(sessionStrs), nSamples, nChannelsTotal*(nChannelsTotal-1)/2, 2); % n_sessions x n_samples x n_off_diagnal elements x 2 halves 
+            simmats                     = nan(numel(sessionStrs), nSamples, nChannelsTotal*(nChannelsTotal-1)/2); 
             for sessI=1:numel(sessionStrs)
                 switch taskStrs{taskI}
                     case 'ODR'
@@ -91,9 +91,8 @@ for taskI=1:nTasks
                     corrmat_1           = sqmat2vec(corrmat_1);
                     corrmat_2           = sqmat2vec(corrmat_2);
 
-                    sim_corrmats(sampleI)           = corr(corrmat_1, corrmat_2, 'rows', 'complete', 'type', 'Pearson');
-                    simmats(sessI, sampleI, :, 1)   = corrmat_1;
-                    simmats(sessI, sampleI, :, 2)   = corrmat_2;
+                    sim_corrmats(sampleI)       = corr(corrmat_1, corrmat_2, 'rows', 'complete', 'type', 'Pearson');
+                    simmats(sessI, sampleI, :)  = corrmat_1;
                 end % sampleI
                 output.(taskStrs{taskI}).(subjectStrs{subjectI}).(arrayStrs{arrayI})(sessI).session         = sessionStrs{sessI};
                 output.(taskStrs{taskI}).(subjectStrs{subjectI}).(arrayStrs{arrayI})(sessI).sim_corrmats    = sim_corrmats;
@@ -266,14 +265,9 @@ for subjectI = 1:numel(subjectStrs)
             sessions_2          = {output.(task2).(subjectStrs{subjectI}).(arrayStrs{arrayI}).session};
             indx_2              = find(strcmp(sessions_2, sess2));
 
-            if strcmp(task1, task2)
-                simmats_1       = squeeze(output.(task1).(subjectStrs{subjectI}).(arrayStrs{arrayI})(1).simmats(indx_1, :, :, 1));
-                simmats_2       = squeeze(output.(task2).(subjectStrs{subjectI}).(arrayStrs{arrayI})(1).simmats(indx_2, :, :, 2)); 
-            else
-                simmats_1       = squeeze(output.(task1).(subjectStrs{subjectI}).(arrayStrs{arrayI})(1).simmats(indx_1, :, :, 1));
-                simmats_2       = squeeze(output.(task2).(subjectStrs{subjectI}).(arrayStrs{arrayI})(1).simmats(indx_2, :, :, 1)); 
-            end
-            
+            simmats_1           = squeeze(output.(task1).(subjectStrs{subjectI}).(arrayStrs{arrayI})(1).simmats(indx_1, :, :));
+            simmats_2           = squeeze(output.(task2).(subjectStrs{subjectI}).(arrayStrs{arrayI})(1).simmats(indx_2, :, :)); 
+
             for repI = 1:nSamples
                 simmat_corrs(sess_pairI, repI) = corr(reshape(simmats_1(repI, :), [], 1), reshape(simmats_2(repI, :), [], 1), 'rows', 'complete', 'type', 'Pearson'); 
             end % repI             
