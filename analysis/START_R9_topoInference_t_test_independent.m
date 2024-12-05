@@ -6,7 +6,7 @@ function START_R9_topoInference_t_test_independent
 % we only include session pairs that are independent - meaning a session
 % cannot participate in 2 session pairs. 
 % 
-% last modified: 2024.09.23
+% last modified: 2024.12.05
 
 import topography.*; 
 import spikes.*;
@@ -47,7 +47,36 @@ task_combinations               = { {'ODR', 'ODR'};
                                     {'KM', 'AL'};
                                     {'AL', 'AL'}};
 n_task_combinations             = numel(task_combinations); 
-nPermutations                   = 1000; 
+nPermutations                   = 1000;
+
+
+% retrive independent session pairs
+for subjectI=1:numel(subjectStrs)
+    task1s                      = {sessionPairs.(subjectStrs{subjectI}).task1}; 
+    task2s                      = {sessionPairs.(subjectStrs{subjectI}).task2}; 
+    sess1s                      = {sessionPairs.(subjectStrs{subjectI}).sess1}; 
+    sess2s                      = {sessionPairs.(subjectStrs{subjectI}).sess2};
+
+    remove                      = []; 
+
+    for combI = 1:n_task_combinations
+        this_combI_inds         = find(strcmp(task1s, task_combinations{combI}{1}) & strcmp(task2s, task_combinations{combI}{2})); 
+
+        if isempty(this_combI_inds)
+            continue;
+        end
+        showed_sessions         = {};        
+        for i=1:numel(this_combI_inds)
+            if ismember(sess1s{this_combI_inds(i)}, showed_sessions) || ismember(sess2s{this_combI_inds(i)}, showed_sessions)
+                remove(end+1)   = this_combI_inds(i); 
+            else
+                showed_sessions{end+1} = sess1s{this_combI_inds(i)};
+                showed_sessions{end+1} = sess2s{this_combI_inds(i)};
+            end
+        end % i
+    end % combI
+    sessionPairs.(subjectStrs{subjectI})(remove) = []; 
+end % subjectI 
 
 significance_level              = 0.05; 
 figI_corr_summary               = 10;
@@ -277,28 +306,6 @@ for subjectI=1:numel(subjectStrs)
     daysDiff    = daysAcrossTasks_output.(subjectStrs{subjectI}).daysDiff; 
 
     daysDiff    = triu(daysDiff, 1); 
-
-    for dayI=1:(numel(sessions)-1)
-        found_first = 0;
-        for dayJ=(dayI+1):numel(sessions)
-            if strcmp(tasks{dayI}, tasks{dayJ})
-                continue;
-            end
-            if abs(daysDiff(dayI, dayJ)) <= maxDays && abs(daysDiff(dayI, dayJ)) > 0 && found_first==0 
-                found_first = 1;
-                for i=(dayI+1):dayJ
-                    if ~strcmp(tasks{i}, tasks{dayJ})
-                        daysDiff(i, dayJ) = 0; 
-                    end
-                end % i                
-                continue; 
-            end
-            if found_first
-                daysDiff(dayI, dayJ) = 0;  
-            end
-        end % dayJ 
-    end % dayI
-
     sessPairInds= find(abs(daysDiff) <= maxDays & abs(daysDiff) > 0); 
     sz          = size(daysDiff); 
     [X, Y]      = ind2sub(sz, sessPairInds); 
@@ -313,6 +320,7 @@ for subjectI=1:numel(subjectStrs)
 end % subjectI 
 
 end % function generate_sessionPairs
+
 
 function corrs_permutation = corrmat_corrs_permutation(corrmat1, corrmat2, chanLinearInds2, varargin)
 % permute channel locations and compute correlations
