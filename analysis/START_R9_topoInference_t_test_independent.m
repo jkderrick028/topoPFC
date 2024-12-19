@@ -49,7 +49,6 @@ task_combinations               = { {'ODR', 'ODR'};
 n_task_combinations             = numel(task_combinations); 
 nPermutations                   = 1000;
 
-
 % retrive independent session pairs
 for subjectI=1:numel(subjectStrs)
     task1s                      = {sessionPairs.(subjectStrs{subjectI}).task1}; 
