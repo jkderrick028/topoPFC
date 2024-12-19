@@ -17,6 +17,11 @@ subjectStrs                 = {'Buzz', 'Theo'};
 taskStrs                    = {'ODR', 'KM', 'AL'};
 excludedSessionStrs         = get_excludedSessionStrs(); 
 
+%% control analysis, removing 4 sessions for AL
+excludedSessionStrs             = [excludedSessionStrs, {'20171109', '20171110', '20171111', '20171112'}]; 
+
+%%
+
 output                      = []; 
 MAT_output                  = fullfile(resultsPath, sprintf('%s_output.mat', currfilename));
 output.excludedSessionStrs  = excludedSessionStrs; 
