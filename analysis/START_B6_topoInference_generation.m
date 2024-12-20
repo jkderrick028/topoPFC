@@ -28,10 +28,10 @@ arrayStrs                       = {'NSP0', 'NSP1'};
 signal_types                    = {'whole', 'task', 'residuals'}; 
 excludedSessionStrs             = get_excludedSessionStrs();
 
-%% control analysis, removing 4 sessions for AL
-excludedSessionStrs             = [excludedSessionStrs, {'20171109', '20171110', '20171111', '20171112'}]; 
-
-%%
+% %% control analysis, removing 4 sessions for AL
+% excludedSessionStrs             = [excludedSessionStrs, {'20171109', '20171110', '20171111', '20171112'}]; 
+% 
+% %%
 
 figI                            = 10; 
 nHors                           = 2; 
