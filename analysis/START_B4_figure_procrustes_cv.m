@@ -50,7 +50,8 @@ mds_resultsPath = fullfile(projectPath, 'results', 'topovis', 'START_B2_spikesMD
 sessions        = {
                    {'20180307', '20180305'}, ...    % ODR
                    {'20171128', '20171127'}, ...    % KM
-                   {'20171111', '20171110'}  ...    % AL
+                   ... % {'20171111', '20171110'}  ...    % AL, crosstalk
+                   {'20171121', '20171123'}  ...    % AL, no crosstalk
                     }; 
 
 data                                            = [];
