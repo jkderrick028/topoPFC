@@ -48,7 +48,7 @@ task_mean_ACFs_monkeyB_NSP1 = [];
 task_mean_FWHMs_monkeyB_NSP1= []; 
 
 for taskI = 1:n_tasks
-    MAT_donutACF            = fullfile(resultsPath, sprintf('START_B3_donutACF_fitting_summary_cv_%s_%s.mat', taskStrs{taskI}, signalType));
+    MAT_donutACF            = fullfile(projectPath, 'results', 'moranI', 'START_B3_donutACF_fitting_summary_cv', 'laplacian', sprintf('START_B3_donutACF_fitting_summary_cv_%s_%s.mat', taskStrs{taskI}, signalType));
     donutACF_output         = load(MAT_donutACF).output; 
 
     subplot(nHors, nVers, taskI);

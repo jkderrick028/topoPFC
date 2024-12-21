@@ -20,7 +20,8 @@ if ~exist(resultsPath, 'dir'), mkdir(resultsPath); end
 sessionStrs                                 = {'20171109', '20171110', '20171111', '20171112'}; 
 subjectStr                                  = 'Buzz';
 arrayStr                                    = 'NSP1'; 
-threshold                                   = 0.1; 
+% threshold                                   = 0.1; 
+threshold                                   = 0.2; 
 
 for sessI = 1:numel(sessionStrs)
     MAT_original                            = fullfile(dataPath_original, sprintf('%s%s.mat', subjectStr(1), sessionStrs{sessI})); 
