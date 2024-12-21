@@ -21,7 +21,8 @@ sessionStrs                                 = {'20171109', '20171110', '20171111
 subjectStr                                  = 'Buzz';
 arrayStr                                    = 'NSP1'; 
 % threshold                                   = 0.1; 
-threshold                                   = 0.2; 
+% threshold                                   = 0.2; 
+threshold                                   = 0.05; 
 
 for sessI = 1:numel(sessionStrs)
     MAT_original                            = fullfile(dataPath_original, sprintf('%s%s.mat', subjectStr(1), sessionStrs{sessI})); 
