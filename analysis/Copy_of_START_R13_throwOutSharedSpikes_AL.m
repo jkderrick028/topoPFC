@@ -20,9 +20,9 @@ if ~exist(resultsPath, 'dir'), mkdir(resultsPath); end
 sessionStrs                                 = {'20171109', '20171110', '20171111', '20171112'}; 
 subjectStr                                  = 'Buzz';
 arrayStr                                    = 'NSP1'; 
-threshold                                   = 0.1; 
+% threshold                                   = 0.1; 
 % threshold                                   = 0.2; 
-% threshold                                   = 0.05; 
+threshold                                   = 0.05; 
 
 for sessI = 1:numel(sessionStrs)
     MAT_original                            = fullfile(dataPath_original, sprintf('%s%s.mat', subjectStr(1), sessionStrs{sessI})); 
@@ -36,9 +36,6 @@ for sessI = 1:numel(sessionStrs)
         unique_chan                         = unique(chan);
         n_unique_chan                       = numel(unique_chan);
         n_trials                            = size(rasterInds, 1); 
-
-        prop_shared_spikes_all_chanPairs    = zeros(n_unique_chan, n_unique_chan); 
-        throw_out_spikes_all_chanPairs      = cell(n_unique_chan, n_unique_chan); 
 
         for chanI = 1:(n_unique_chan - 1)
             units_chanI                     = find(strcmp(chan, unique_chan{chanI})); 
@@ -73,19 +70,7 @@ for sessI = 1:numel(sessionStrs)
                 end % trlI 
                 
                 prop_shared_spikes                              = 1 - n_unique_spikes / n_spikes_total;
-
-                prop_shared_spikes_all_chanPairs(chanI, chanJ)  = prop_shared_spikes; 
-                throw_out_spikes_all_chanPairs{chanI, chanJ}    = spike_times_each_trial_throw_out; 
-            end % chanJ 
-        end % chanI
-
-        for chanI = 1:(n_unique_chan - 1)
-            units_chanI                     = find(strcmp(chan, unique_chan{chanI})); 
-            for chanJ = (chanI + 1):n_unique_chan
-                units_chanJ                                     = find(strcmp(chan, unique_chan{chanJ})); 
-                prop_shared_spikes                              = prop_shared_spikes_all_chanPairs(chanI, chanJ);
                 if prop_shared_spikes > threshold
-                    spike_times_each_trial_throw_out            = throw_out_spikes_all_chanPairs{chanI, chanJ}; 
                     for trlI = 1:n_trials
                         for unitI =1:numel(units_chanI)                                                        
                             rasterInds{trlI, units_chanI(unitI)}= rasterInds{trlI, units_chanI(unitI)}(~ismember(rasterInds{trlI, units_chanI(unitI)}, spike_times_each_trial_throw_out{trlI}));  
@@ -95,17 +80,14 @@ for sessI = 1:numel(sessionStrs)
                             rasterInds{trlI, units_chanJ(unitJ)}= rasterInds{trlI, units_chanJ(unitJ)}(~ismember(rasterInds{trlI, units_chanJ(unitJ)}, spike_times_each_trial_throw_out{trlI}));  
                         end % unitJ
                     end % trlI 
-                end
+                end 
             end % chanJ 
-        end % chanI 
-
+        end % chanI
         data.(blockStrs{blockI}).rasterInds.(arrayStr)          = rasterInds;
     end % blockI
     MAT_modified = fullfile(resultsPath, sprintf('%s%s.mat', subjectStr(1), sessionStrs{sessI})); 
     save(MAT_modified, 'data', '-v7.3'); 
 end % sessI 
-
-
 
 
 
