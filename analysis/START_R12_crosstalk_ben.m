@@ -17,10 +17,10 @@ import utils_dx.*;
 
 %% AL
 %load session data
-% session = 'B20171109';
+session = 'B20171109';
 % session = 'B20171110';
 % session = 'B20171111';
-session = 'B20171112';
+% session = 'B20171112';
 % session = 'B20171121';
 % session = 'B20171123';
 load(['/Users/jkderrick028/Documents/Projects/topoPFC/data/AL/Buzz/', session, '.mat']); 
