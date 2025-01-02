@@ -42,7 +42,7 @@ task_mean_monkeyB_NSP1      = [];
 task_mean_FWHMs_monkeyB_NSP1= [];
 
 for taskI = 1:n_tasks
-    MAT_donutACF            = fullfile(resultsPath, sprintf('START_B3_donutACF_fitting_summary_cv_%s_%s.mat', taskStrs{taskI}, signalType));
+    MAT_donutACF            = fullfile(projectPath, 'results', 'moranI', 'START_B3_donutACF_fitting_summary_cv', 'laplacian', sprintf('START_B3_donutACF_fitting_summary_cv_%s_%s.mat', taskStrs{taskI}, signalType));
     donutACF_output         = load(MAT_donutACF).output; 
 
     for subjectI = 1:numel(subjectStrs)
@@ -108,7 +108,7 @@ for sizeI=1:numel(resizes)
     FWHM_structural_pct_lower   = prctile(FWHMs_structural, 2.5);
     FWHM_structural_pct_upper   = prctile(FWHMs_structural, 97.5);
 
-    scatter([FWHM_structural_pct_lower, FWHM_structural_pct_upper], [0, 0], 15, 'filled', 'o', 'MarkerFaceColor', color_structural);
+    % scatter([FWHM_structural_pct_lower, FWHM_structural_pct_upper], [0, 0], 15, 'filled', 'o', 'MarkerFaceColor', color_structural);
 
     plot(distances, task_mean_monkeyB_NSP1(1, :), 'Color', color_ODR, 'LineStyle', '-', 'LineWidth', 2);   % ODR, yellow
     plot(distances, task_mean_monkeyB_NSP1(2, :), 'Color', color_KM, 'LineStyle', '-', 'LineWidth', 2);   % VWM, green
@@ -116,9 +116,9 @@ for sizeI=1:numel(resizes)
 
 
     % plotting the mean FWHM of functional ACFs for each task
-    xline(task_mean_FWHMs_monkeyB_NSP1(1), 'Color', color_ODR, 'LineStyle', '--', 'LineWidth', 0.8); 
-    xline(task_mean_FWHMs_monkeyB_NSP1(2), 'Color', color_KM, 'LineStyle', '--', 'LineWidth', 0.8); 
-    xline(task_mean_FWHMs_monkeyB_NSP1(3), 'Color', color_AL, 'LineStyle', '--', 'LineWidth', 0.8); 
+    % xline(task_mean_FWHMs_monkeyB_NSP1(1), 'Color', color_ODR, 'LineStyle', '--', 'LineWidth', 0.8); 
+    % xline(task_mean_FWHMs_monkeyB_NSP1(2), 'Color', color_KM, 'LineStyle', '--', 'LineWidth', 0.8); 
+    % xline(task_mean_FWHMs_monkeyB_NSP1(3), 'Color', color_AL, 'LineStyle', '--', 'LineWidth', 0.8); 
 
     xlim([0, 3.65]);
     ylim([-0.3, 1]);

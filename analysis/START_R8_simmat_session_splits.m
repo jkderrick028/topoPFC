@@ -337,7 +337,19 @@ for subjectI = 1:numel(subjectStrs)
                 
                 if p_significant
                     scatter(combI, -0.1, 'filled', 'MarkerFaceColor', [150, 150, 150]/255); 
-                end                 
+                end 
+
+
+                % t test see if within and between task reliability is
+                % significantly larger than 0
+                rs                      = mean(simmat_corrs(inds_combI, :), 2);
+                [h, p_vals, ci, stats]  = ttest(rs, 0, 'Tail', 'right'); 
+                                
+                p_significant           = (p_vals < 0.05);
+                                                                
+                if p_significant
+                    scatter(combI, -0.05, 'filled', 'MarkerFaceColor', [150, 0, 0]/255); 
+                end 
             end 
         end % combI 
         output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).simmat_corrs           = simmat_corrs; 
