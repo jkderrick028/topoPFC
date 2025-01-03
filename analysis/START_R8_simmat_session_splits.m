@@ -306,6 +306,24 @@ for subjectI = 1:numel(subjectStrs)
         ylabel('Pearson r'); 
         xlabel('task combs');
 
+        % t test see if within and between task reliability is
+        % significantly larger than 0
+        for combI=1:n_task_combinations   
+            inds_combI              = find(strcmp(task1s_this_subject, task_combinations{combI}{1}) & strcmp(task2s_this_subject, task_combinations{combI}{2}));      
+            
+            rs                      = mean(simmat_corrs(inds_combI, :), 2);
+            [h, p_vals, ci, stats]  = ttest(rs, 0, 'Tail', 'right'); 
+                            
+            p_significant           = (p_vals < 0.05);
+                                                            
+            if p_significant
+                scatter(combI, -0.05, 'filled', 'MarkerFaceColor', [150, 0, 0]/255); 
+            end
+
+            output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).t_zero(combI).p_vals  = p_vals; 
+            output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).t_zero(combI).stats   = stats; 
+        end % combI
+
         % noise ceiling
         noise_ceilings          = nan(n_task_combinations, 1); 
         for combI=1:n_task_combinations   
@@ -337,20 +355,10 @@ for subjectI = 1:numel(subjectStrs)
                 
                 if p_significant
                     scatter(combI, -0.1, 'filled', 'MarkerFaceColor', [150, 150, 150]/255); 
-                end 
-
-
-                % t test see if within and between task reliability is
-                % significantly larger than 0
-                rs                      = mean(simmat_corrs(inds_combI, :), 2);
-                [h, p_vals, ci, stats]  = ttest(rs, 0, 'Tail', 'right'); 
-                                
-                p_significant           = (p_vals < 0.05);
-                                                                
-                if p_significant
-                    scatter(combI, -0.05, 'filled', 'MarkerFaceColor', [150, 0, 0]/255); 
-                end 
-            end 
+                end                 
+                output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).t_noise_ceiling(combI).p_vals  = p_vals; 
+                output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).t_noise_ceiling(combI).stats   = stats; 
+            end            
         end % combI 
         output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).simmat_corrs           = simmat_corrs; 
         output.between_tasks.(subjectStrs{subjectI}).(arrayStrs{arrayI}).task1s_this_subject    = task1s_this_subject; 
