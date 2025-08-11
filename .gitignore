@@ -5,6 +5,7 @@
 ![a-zA-Z]*.txt
 ![a-zA-Z]*.py
 ![a-zA-Z]*.md
+![a-zA-Z0-9]*.ipynb
 !PFC_stripes_clean.jpg
 
 !*/
