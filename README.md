@@ -4,7 +4,7 @@ This repository contains code in support of the paper "Task-specific topographic
 
 ## Publications
 
-Preprint: ["Task-specific topographical maps of neural activity in the primate lateral prefrontal cortex]([https://www.biorxiv.org/content/10.1101/2024.05.10.591729v2.full](https://www.biorxiv.org/content/10.1101/2024.05.10.591729v2.full)
+Preprint: [Task-specific topographic maps of neural activity in the primate lateral prefrontal cortex](https://www.biorxiv.org/content/10.1101/2024.05.10.591729v2.full)
 
 ## Prerequisites
 
