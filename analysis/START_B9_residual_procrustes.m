@@ -1,4 +1,4 @@
-function START_B4_figure_procrustes(varargin)
+function START_B9_residual_procrustes(varargin)
 % generates raw figures for the manuscript.
 % 1.    pick out the 2 sessions in each task for visualization (Buzz, NSP1)
 % 
@@ -19,7 +19,7 @@ import utils_dx.*;
 close all;
 
 p                                               = inputParser;
-p.addParameter('signalType', 'mcTuning');                                   % or residual
+p.addParameter('signalType', 'residual');                                   % or residual
 parse(p, varargin{:});
 signalType                                      = p.Results.signalType;
 
@@ -30,6 +30,7 @@ resultsPath                                     = fullfile(projectPath, 'results
 if ~exist(resultsPath, 'dir'), mkdir(resultsPath); end
 
 taskStrs                                        = {'ODR', 'KM', 'AL'}; 
+% taskStrs                                        = {'KM', 'KM', 'AL'}; 
 subjectStr                                      = 'Buzz'; 
 arrayStr                                        = 'NSP1'; 
 nRows                                           = 10;
@@ -47,11 +48,11 @@ if exist(PS_mdsProcrustes, 'file'), system(['rm ' PS_mdsProcrustes]); end
 figI_mdsProcrustes                              = 10; 
 
 mds_resultsPath = fullfile(projectPath, 'results', 'topovis', 'START_B2_spikesMDS');
-sessions        = {
-                   {'20180307', '20180305'}, ...    % ODR
-                   {'20171128', '20171127'}, ...    % KM
-                   {'20171111', '20171110'}  ...    % AL
-                    }; 
+% sessions        = {
+%                    {'20180307', '20180305'}, ...    % ODR
+%                    {'20171128', '20171127'}, ...    % KM
+%                    {'20171111', '20171110'}  ...    % AL
+%                     }; 
 
 data                                            = [];
 index                                           = 1; 
@@ -59,19 +60,22 @@ for taskI = 1:numel(taskStrs)
     MAT_mds_output                              = fullfile(mds_resultsPath, sprintf('START_B2_spikesMDS_%s_%s.mat', taskStrs{taskI}, signalType)); 
     output_this_task                            = load(MAT_mds_output).output.(subjectStr).(arrayStr); 
     
-    for sessI = 1: 2
+    sessions                                    = fieldnames(output_this_task);
+    sessions                                    = sessions(1:end-1); 
+
+    for sessI = 1: numel(sessions)
         data(index).task                        = taskStrs{taskI};
-        data(index).session                     = sessions{taskI}{sessI};
-        data(index).coords_2D                   = output_this_task.(sprintf('sess_%s', sessions{taskI}{sessI})).coords_2D; 
-        data(index).chanLinearInds              = output_this_task.(sprintf('sess_%s', sessions{taskI}{sessI})).chanLinearInds;
+        data(index).session                     = strrep(sessions{sessI}, 'sess_', '');
+        data(index).coords_2D                   = output_this_task.(sprintf('%s', sessions{sessI})).coords_2D; 
+        data(index).chanLinearInds              = output_this_task.(sprintf('%s', sessions{sessI})).chanLinearInds;
         index                                   = index + 1; 
     end % sessI 
 end % taskI 
 
 % now visualize the maps without any processing
 figure(figI_mdsProcrustes); clf(figI_mdsProcrustes); 
-nHors                                           = 3; 
-nVers                                           = 2;
+nVers                                           = 4;
+nHors                                           = ceil(numel(data)/nVers); 
 figInfo.nHors                                   = nHors;
 figInfo.nVers                                   = nVers; 
 
@@ -121,8 +125,8 @@ end % dataI
 
 % now visualize procrustes results
 figure(figI_mdsProcrustes); clf(figI_mdsProcrustes); 
-nHors                                           = 3; 
-nVers                                           = 2;
+nVers                                           = 4;
+nHors                                           = ceil(numel(data)/nVers); 
 figInfo.nHors                                   = nHors;
 figInfo.nVers                                   = nVers; 
 
@@ -141,14 +145,20 @@ addHeadingAndPrint(pageHeadings, PS_mdsProcrustes, figI_mdsProcrustes);
 nColourChannels                                 = 3; % rgb channels
 fitting_resultsPath                             = fullfile(projectPath, 'results', 'moranI', 'START_B3_donutACF_fitting_summary', 'laplacian'); 
 
+% sessions        = {
+%                    {'20180307', '20180305'}, ...    % ODR
+%                    {'20171128', '20171127'}, ...    % KM
+%                    {'20171111', '20171110'}  ...    % AL
+%                     }; 
+
 dataI = 1; 
 for taskI = 1:numel(taskStrs)
     MAT_fitting_output                          = fullfile(fitting_resultsPath, sprintf('START_B3_donutACF_fitting_summary_%s_%s.mat', taskStrs{taskI}, signalType)); 
     fitting_output                              = load(MAT_fitting_output).output.(subjectStr);
     sessionStrs_this_task                       = fitting_output.sessionStrs; 
-    for sessI = 1:2
-        sess_index                              = find(strcmp(sessionStrs_this_task, sessions{taskI}{sessI})); 
-        data(dataI).fwhm                        = fitting_output.(arrayStr).fitting.fwhm(sess_index); 
+    for sessI = 1:numel(sessionStrs_this_task)
+        % sess_index                              = find(strcmp(sessionStrs_this_task, sessions{taskI}{sessI})); 
+        data(dataI).fwhm                        = fitting_output.(arrayStr).fitting.fwhm(sessI); 
         dataI                                   = dataI + 1; 
     end % sessI
     if ~exist('distances', 'var')
@@ -158,8 +168,9 @@ end % taskI
 
 
 figure(figI_mdsProcrustes); clf(figI_mdsProcrustes); 
-nHors                                           = 3; 
-nVers                                           = 2;
+nVers                                           = 4;
+nHors                                           = ceil(numel(data)/nVers); 
+
 for dataI = 1:numel(data)
     colours_rgb                                 = data(dataI).colours_aligned; 
     chanLinearInds                              = data(dataI).chanLinearInds; 
@@ -199,7 +210,7 @@ addHeadingAndPrint(pageHeadings, PS_mdsProcrustes, figI_mdsProcrustes);
 output.data                                     = data; 
 save(MAT_procrustesOutput, 'output', '-v7.3');
 close all;
-end % function START_B4_figure_procrustes
+end % function START_B9_residual_procrustes
 
 function arraySpaceColour = coords2maps(coords_2D, chanLinearInds, figInfo)
 % 

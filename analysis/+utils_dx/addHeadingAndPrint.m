@@ -17,4 +17,10 @@ text(1.11,1.08,heading,'HorizontalAlignment','Right','VerticalAlignment','Top','
 % print as postscript file (appending)
 % print('-dpsc2','-append','-fillpage',filespec);
 
-print('-dpsc2','-append','-fillpage',filespec, '-r500');
+% print('-dpsc2', '-append', '-fillpage', filespec, '-r500');
+% print('-deps', '-append', '-fillpage', filespec, '-r500');
+
+exportgraphics(gcf, filespec, ...
+    'ContentType','vector', ...
+    'Resolution',500, ...
+    'Append', true);

@@ -41,9 +41,9 @@ figI_mds                            = 10;
 figI_unexplVar                      = 15; 
 
 for subjectI=1:numel(subjectStrs)
-    PS_mds                          = fullfile(resultsPath, sprintf('%s_%s_%s_%s.ps', currfilename, taskStr, subjectStrs{subjectI}, signalType));
+    PS_mds                          = fullfile(resultsPath, sprintf('%s_%s_%s_%s.pdf', currfilename, taskStr, subjectStrs{subjectI}, signalType));
     if exist(PS_mds, 'file'), system(['rm ' PS_mds]); end
-    PS_mds_unexplVar                = fullfile(resultsPath, sprintf('%s_%s_%s_unexplVar_%s.ps', currfilename, taskStr, subjectStrs{subjectI}, signalType));
+    PS_mds_unexplVar                = fullfile(resultsPath, sprintf('%s_%s_%s_unexplVar_%s.pdf', currfilename, taskStr, subjectStrs{subjectI}, signalType));
     if exist(PS_mds_unexplVar, 'file'), system(['rm ' PS_mds_unexplVar]); end
     
     MAT_tuningResults               = fullfile(resultsPath_taskTuning, sprintf('START_B1_extractSignal_%s_%s_channels_results.mat', taskStr, subjectStrs{subjectI}));    
